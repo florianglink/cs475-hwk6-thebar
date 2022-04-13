@@ -37,8 +37,9 @@ void* customer(void* args)
  */
 void custTravelToBar(unsigned int custID)
 {
-	//TODO - synchronize
 	printf("Cust %u\t\t\t\t\t\t\t\t\t\t\t|\n", custID);
+	int delay = rand() % (5001-20) + 20;
+	usleep(delay);
 }
 
 
@@ -48,8 +49,9 @@ void custTravelToBar(unsigned int custID)
  */
 void custArriveAtBar(unsigned int custID)
 {
-	//TODO - synchronize
 	printf("\t\tCust %u\t\t\t\t\t\t\t\t\t|\n", custID);
+	sem_wait(bar_open);
+	now_serving = custID;
 }
 
 
@@ -58,8 +60,8 @@ void custArriveAtBar(unsigned int custID)
  */
 void custPlaceOrder()
 {
-	//TODO - synchronize
 	printf("\t\t\t\tCust %u\t\t\t\t\t\t\t|\n", now_serving);
+	sem_post(order_placed);
 }
 
 
@@ -68,8 +70,9 @@ void custPlaceOrder()
  */
 void custBrowseArt()
 {
-	//TODO - synchronize
 	printf("\t\t\t\t\t\tCust %u\t\t\t\t\t|\n", now_serving);
+	int delay = rand() % (4001-3) + 3;
+	usleep(delay);
 }
 
 
@@ -80,8 +83,9 @@ void custBrowseArt()
  */
 void custAtRegister()
 {
-	//TODO - synchronize
 	printf("\t\t\t\t\t\t\t\tCust %u\t\t\t|\n", now_serving);
+	sem_wait(order_ready);
+	sem_post(payment_received);
 }
 
 
@@ -90,6 +94,10 @@ void custAtRegister()
  */
 void custLeaveBar()
 {
-	//TODO - synchronize
+	sem_post(bar_open);
 	printf("\t\t\t\t\t\t\t\t\t\tCust %u\t|\n", now_serving);
+	num_served++;
+	if(num_served == num_threads){
+		sem_post(all_served);
+	}
 }
